@@ -1,4 +1,5 @@
 import numpy as np
+import datetime as dt
 
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
@@ -39,6 +40,7 @@ def welcome():
         f"Available Routes:<br/>"
         f"<a href='/api/v1.0/precipitation'>precipitation</a><br/>"
         f"<a href='/api/v1.0/stations'>stations</a><br/>"
+        f"<a href='/api/v1.0/tobs'>tobs</a><br/>"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -58,12 +60,40 @@ def precipitation():
 
 
 @app.route("/api/v1.0/stations")
-def countrytotal():
+def stations():
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
     # Query all weather stations
     results = session.query(func.distinct(Measurements.station)).order_by(Measurements.station).all()
+  
+    session.close()
+
+    # Convert list of tuples into normal list
+    all_results = list(np.ravel(results))
+
+    return jsonify(all_results)
+
+@app.route("/api/v1.0/tobs")
+def tobs():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    # Find the most active station
+    measurementCount = session.query(Measurements.station).filter(Measurements.station == Stations.station).group_by(Stations.name).order_by(func.count(Measurements.station).desc()).first()
+    mostActive = np.ravel(measurementCount)
+    mostActive = mostActive[0]
+
+    # Find the date range for that station
+    lastMeasurement = session.query(Measurements.date).filter(Measurements.station == mostActive).order_by(Measurements.date.desc()).first()
+    endDate = np.ravel(lastMeasurement)
+    endDate = endDate[0]
+    endDate = dt.date.fromisoformat(endDate)
+    startDate = endDate - dt.timedelta(days=365)
+    #print(f'{startDate}')
+
+    # Query temp measurements from that station)
+    results = session.query(Measurements.station, Measurements.date, Measurements.tobs).filter(Measurements.station == mostActive).filter(Measurements.date >= startDate).all()
   
     session.close()
 
