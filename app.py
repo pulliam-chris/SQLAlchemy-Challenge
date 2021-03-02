@@ -1,5 +1,6 @@
 import numpy as np
 import datetime as dt
+import pandas as pd
 
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
@@ -41,7 +42,8 @@ def welcome():
         f"<a href='/api/v1.0/precipitation'>precipitation</a><br/>"
         f"<a href='/api/v1.0/stations'>stations</a><br/>"
         f"<a href='/api/v1.0/tobs'>tobs</a><br/>"
-        f"<a href='/api/v1.0/tobs/start_date'>tobs_after_date</a><br/>"
+        f"<a href='/api/v1.0/tobs/start_date'>tobs/start_date</a><br/>"
+        f"<a href='/api/v1.0/tobs/start_date/end_date'>tobs/start_date/end_date</a><br/>"
         #f"<a href='/api/v1.0/<start_date>/<end_date>'>tobs_between_dates</a><br/>"
     )
 
@@ -114,16 +116,53 @@ def tobs_after_date(start_date):
     session = Session(engine)
 
     # Query temp measurements after provided date
-    results = session.query(Measurements.date, Measurements.tobs).filter(Measurements.date >= start_date).all()
-
+    tempCalcs = session.query(Measurements.tobs).filter(Measurements.date >= start_date).all()
+    
     session.close()
 
-    # Convert list of tuples into normal list
-    all_results = list(np.ravel(results))
+    tempCalcs = list(np.ravel(tempCalcs))
+    if len(tempCalcs) == 0:
+        return jsonify({"error": f"TOBS Measurements in provided range not found. Please use date format YYYY-DD-MM"}), 404
+
+    lowTemp = int(min(tempCalcs))
+    highTemp = int(max(tempCalcs))
+    allTemps = pd.Series(tempCalcs,dtype='int32')
+    avgTemp = round(allTemps.mean(),2) 
+
+    # Convert caculations into a list
+    all_results = [lowTemp, avgTemp, highTemp]
 
     return jsonify(all_results)
 
-#return jsonify({"error": f"TOBS Measurements in provided range not found. Please use date format YYYY-DD-MM"}), 404
+@app.route("/api/v1.0/tobs/<start_date>/<end_date>")
+def tobs_between_dates(start_date,end_date):
+
+    # Convert passed date to datetime
+    start_date = dt.date.fromisoformat(start_date)
+    end_date = dt.date.fromisoformat(end_date) 
+
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    # Query temp measurements after provided date
+    tempCalcs = session.query(Measurements.tobs).filter(Measurements.date >= start_date).filter(Measurements.date <= end_date).all()
+    
+    session.close()
+
+    tempCalcs = list(np.ravel(tempCalcs))
+    if len(tempCalcs) == 0:
+        return jsonify({"error": f"TOBS Measurements in provided range not found. Please use date format YYYY-DD-MM"}), 404
+
+    lowTemp = int(min(tempCalcs))
+    highTemp = int(max(tempCalcs))
+    allTemps = pd.Series(tempCalcs,dtype='int32')
+    avgTemp = round(allTemps.mean(),2) 
+
+    # Convert caculations into a list
+    all_results = [lowTemp, avgTemp, highTemp]
+
+    return jsonify(all_results)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
