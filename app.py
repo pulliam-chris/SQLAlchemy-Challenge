@@ -41,6 +41,8 @@ def welcome():
         f"<a href='/api/v1.0/precipitation'>precipitation</a><br/>"
         f"<a href='/api/v1.0/stations'>stations</a><br/>"
         f"<a href='/api/v1.0/tobs'>tobs</a><br/>"
+        f"<a href='/api/v1.0/tobs/start_date'>tobs_after_date</a><br/>"
+        #f"<a href='/api/v1.0/<start_date>/<end_date>'>tobs_between_dates</a><br/>"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -93,7 +95,7 @@ def tobs():
     #print(f'{startDate}')
 
     # Query temp measurements from that station)
-    results = session.query(Measurements.station, Measurements.date, Measurements.tobs).filter(Measurements.station == mostActive).filter(Measurements.date >= startDate).all()
+    results = session.query(Measurements.date, Measurements.tobs).filter(Measurements.station == mostActive).filter(Measurements.date >= startDate).all()
   
     session.close()
 
@@ -101,6 +103,27 @@ def tobs():
     all_results = list(np.ravel(results))
 
     return jsonify(all_results)
+
+@app.route("/api/v1.0/tobs/<start_date>")
+def tobs_after_date(start_date):
+
+    # Convert passed date to datetime
+    start_date = dt.date.fromisoformat(start_date) 
+
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    # Query temp measurements after provided date
+    results = session.query(Measurements.date, Measurements.tobs).filter(Measurements.date >= start_date).all()
+
+    session.close()
+
+    # Convert list of tuples into normal list
+    all_results = list(np.ravel(results))
+
+    return jsonify(all_results)
+
+#return jsonify({"error": f"TOBS Measurements in provided range not found. Please use date format YYYY-DD-MM"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
