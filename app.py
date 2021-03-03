@@ -44,7 +44,6 @@ def welcome():
         f"<a href='/api/v1.0/tobs'>tobs</a><br/>"
         f"<a href='/api/v1.0/tobs/start_date'>tobs/start_date</a><br/>"
         f"<a href='/api/v1.0/tobs/start_date/end_date'>tobs/start_date/end_date</a><br/>"
-        #f"<a href='/api/v1.0/<start_date>/<end_date>'>tobs_between_dates</a><br/>"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -91,12 +90,12 @@ def tobs():
     # Find the date range for that station
     lastMeasurement = session.query(Measurements.date).filter(Measurements.station == mostActive).order_by(Measurements.date.desc()).first()
     endDate = np.ravel(lastMeasurement)
+    # Unrap list and convert to datetime
     endDate = endDate[0]
     endDate = dt.date.fromisoformat(endDate)
     startDate = endDate - dt.timedelta(days=365)
-    #print(f'{startDate}')
 
-    # Query temp measurements from that station)
+    # Query temp measurements from that station
     results = session.query(Measurements.date, Measurements.tobs).filter(Measurements.station == mostActive).filter(Measurements.date >= startDate).all()
   
     session.close()
@@ -124,6 +123,7 @@ def tobs_after_date(start_date):
     if len(tempCalcs) == 0:
         return jsonify({"error": f"TOBS Measurements in provided range not found. Please use date format YYYY-DD-MM"}), 404
 
+    # Calculations based on query
     lowTemp = int(min(tempCalcs))
     highTemp = int(max(tempCalcs))
     allTemps = pd.Series(tempCalcs,dtype='int32')
