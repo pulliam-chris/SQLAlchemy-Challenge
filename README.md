@@ -9,4 +9,4 @@ SQLAlchemy, Sqlite, and Flask API HI Climate Queries
 
 ![API Query](https://github.com/pulliam-chris/SQLAlchemy-Challenge/blob/main/images/temps_query.PNG "API Query")
 
-![JSON Return](https://github.com/pulliam-chris/SQLAlchemy-Challenge/blob/main/images/tempts._return.PNG "JSON Return")
+![JSON Return](https://github.com/pulliam-chris/SQLAlchemy-Challenge/blob/main/images/temps_return.PNG "JSON Return")
