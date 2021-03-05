@@ -1,7 +1,7 @@
 # SQLAlchemy-Challenge
 SQLAlchemy, Sqlite, and Flask API HI Climate Queries
 
-![Precipitation Tracking](https://github.com/pulliam-chris/SQLAlchmey-Challenge/blob/main/images/HI_Precipitation.PNG "Precipitation Tracking")
+![Precipitation Tracking](https://github.com/pulliam-chris/SQLAlchemy-Challenge/blob/main/images/HI_Precipitation.PNG "Precipitation Tracking")
 
 ![Temperature Frequencies](https://github.com/pulliam-chris/SQLAlchemy-Challenge/blob/main/images/HI_Temp_Histogram.PNG "Temperature Frequencies")
 
