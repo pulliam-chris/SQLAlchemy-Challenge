@@ -23,7 +23,7 @@ Primary files: climate.ipynb (Jupyter Notebook) and app.py (Flask API)
   *  tobs/start_date (returns [min, average, max] temperature information from the selected start_date onward)
   *  tobs/start_date/end_date (returns [min, average, max] temperature information within the selected date period)
 
-## Example
+### Example
 * Query passing targeted dates.  
 ![API Query](https://github.com/pulliam-chris/SQLAlchemy-Challenge/blob/main/images/temps_query.PNG "API Query")
 
