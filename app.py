@@ -108,20 +108,24 @@ def tobs():
 @app.route("/api/v1.0/tobs/<start_date>")
 def tobs_after_date(start_date):
 
-    # Convert passed date to datetime
-    start_date = dt.date.fromisoformat(start_date) 
+    try:
+        # Convert passed date to datetime
+        start_date = dt.date.fromisoformat(start_date) 
 
-    # Create our session (link) from Python to the DB
-    session = Session(engine)
+        # Create our session (link) from Python to the DB
+        session = Session(engine)
 
-    # Query temp measurements after provided date
-    tempCalcs = session.query(Measurements.tobs).filter(Measurements.date >= start_date).all()
+        # Query temp measurements after provided date
+        tempCalcs = session.query(Measurements.tobs).filter(Measurements.date >= start_date).all()
     
-    session.close()
+        session.close()
 
-    tempCalcs = list(np.ravel(tempCalcs))
+        tempCalcs = list(np.ravel(tempCalcs))
+    except:
+        return jsonify({"error": f"TOBS Measurements in provided range not found. Please use date format YYYY-MM-DD."}), 404
+
     if len(tempCalcs) == 0:
-        return jsonify({"error": f"TOBS Measurements in provided range not found. Please use date format YYYY-DD-MM"}), 404
+        return jsonify({"error": f"TOBS Measurements in provided range not found. Please use date format YYYY-MM-DD."}), 404
 
     # Calculations based on query
     lowTemp = int(min(tempCalcs))
@@ -137,21 +141,25 @@ def tobs_after_date(start_date):
 @app.route("/api/v1.0/tobs/<start_date>/<end_date>")
 def tobs_between_dates(start_date,end_date):
 
-    # Convert passed date to datetime
-    start_date = dt.date.fromisoformat(start_date)
-    end_date = dt.date.fromisoformat(end_date) 
+    try:
+        # Convert passed date to datetime
+        start_date = dt.date.fromisoformat(start_date)
+        end_date = dt.date.fromisoformat(end_date) 
 
-    # Create our session (link) from Python to the DB
-    session = Session(engine)
+        # Create our session (link) from Python to the DB
+        session = Session(engine)
 
-    # Query temp measurements after provided date
-    tempCalcs = session.query(Measurements.tobs).filter(Measurements.date >= start_date).filter(Measurements.date <= end_date).all()
+        # Query temp measurements after provided date
+        tempCalcs = session.query(Measurements.tobs).filter(Measurements.date >= start_date).filter(Measurements.date <= end_date).all()
     
-    session.close()
+        session.close()
 
-    tempCalcs = list(np.ravel(tempCalcs))
+        tempCalcs = list(np.ravel(tempCalcs))
+    except:
+        return jsonify({"error": f"TOBS Measurements in provided range not found. Please use date format YYYY-MM-DD."}), 404
+
     if len(tempCalcs) == 0:
-        return jsonify({"error": f"TOBS Measurements in provided range not found. Please use date format YYYY-DD-MM"}), 404
+        return jsonify({"error": f"TOBS Measurements in provided range not found. Please use date format YYYY-MM-DD."}), 404
 
     lowTemp = int(min(tempCalcs))
     highTemp = int(max(tempCalcs))
